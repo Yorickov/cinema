@@ -1,6 +1,7 @@
 # require 'rubygems'
 # require 'bundler/setup'
 
-require_relative 'lib/Half'
+require_relative 'lib/cinema_manager'
 
-puts Half.new.call(ARGV[ARGV.size - 1].to_i)
+film_screening = CinemaManager.create_film_screening('the appartment', 120, 'hall 1', 30, 50, Time.new)
+puts film_screening.film.name

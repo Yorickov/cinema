@@ -2,12 +2,12 @@ install:
 	bundle install
 
 run:
-	ruby main.rb 10
+	ruby main.rb
 
 test:
 	bundle exec rspec
 
 push:
-	git push -u origin master
+	git push -u origin main
 
 .PHONY: test
