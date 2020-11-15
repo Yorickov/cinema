@@ -5,7 +5,6 @@ class CinemaHall < ApplicationEntity
   attr_reader :id, :name, :rows, :cols, :created_at
 
   def initialize(name, rows, cols)
-    # super
     @id = SecureRandom.uuid
     @name = name
     @rows = rows
