@@ -6,7 +6,8 @@ class MoneyService < ApplicationService
     user = user_repository.find(user_id)
     screening = film_screening_repository.find(film_screening_id)
     ticket = Ticket.new(screening, user, place)
-    ticket_repository.save(ticket)
-    ticket
+    errors = ticket.validate!
+    ticket_repository.save(ticket) unless errors
+    [ticket, errors]
   end
 end

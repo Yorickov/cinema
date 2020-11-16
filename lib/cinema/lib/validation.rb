@@ -16,37 +16,40 @@ module Validation
   end
 
   module InstanceMethods
-    def valid?
-      validate!
-      true
-    rescue ArgumentError
-      false
-    end
-
-    protected
-
     def validate!
-      self.class.constrains.each do |name, items|
+      errors = {}
+
+      self.class.constrains.each do |path, items|
         items.each do |c|
-          attr = instance_variable_get("@#{name}")
+          attr_value = instance_variable_get("@#{path}")
           method = "validate_#{c[:type]}"
-          send(method, attr, c[:opt])
+          result = send(method, attr_value, c[:opt])
+
+          if result
+            errors[path] ||= []
+            errors[path] << result
+          end
         end
       end
+
+      errors.any? && errors
     end
 
     private
 
-    def validate_presence(attr, _opt)
-      raise ArgumentError, 'You must input smth.' if attr.strip.size.zero?
+    def validate_presence(attr_value, _opt)
+      error_message = 'You must input smth.'
+      attr_value.to_s.strip.size.zero? && error_message
     end
 
-    def validate_format(attr, opt)
-      raise ArgumentError, 'Invalid format' if attr.strip !~ opt[0]
+    def validate_type(attr_value, opt)
+      error_message = 'Wrong type'
+      !attr_value.is_a?(opt[0]) && error_message
     end
 
-    def validate_type(attr, opt)
-      raise TypeError, 'wrong type' unless attr.is_a?(opt[0])
+    def validate_format(attr_value, opt)
+      error_message = 'Invalid format'
+      (attr_value.strip !~ opt[0]) && error_message
     end
   end
 end
