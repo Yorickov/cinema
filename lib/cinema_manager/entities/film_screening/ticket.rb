@@ -2,7 +2,7 @@ require 'securerandom'
 require_relative '../application_entity'
 require_relative '../../lib/validation'
 
-class Ticket < ApplicationEntity
+class FilmScreeningTicket < ApplicationEntity
   include Validation
 
   attr_reader :id, :film_screening, :user, :place, :created_at

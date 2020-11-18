@@ -1,4 +1,5 @@
 require 'securerandom'
+require 'uri'
 require_relative './application_entity'
 require_relative '../lib/validation'
 

@@ -1,19 +1,8 @@
-require 'cinema/services/cinema_service'
-require 'cinema/repositories/cinema_hall_repository'
-require 'cinema/repositories/film_repository'
-require 'cinema/repositories/film_screening_repository'
+require 'cinema_manager'
 
 describe 'CinemaService' do
   before(:each) do
-    repo_types = {
-      cinema_hall_repository: CinemaHallRepository,
-      film_repository: FilmRepository,
-      film_screening_repository: FilmScreeningRepository
-    }
-    repository_instances = repo_types.each_with_object({}) do |(key, value), acc|
-      acc[key] = value.new
-    end
-    @service = CinemaService.new(repository_instances)
+    @service = CinemaManager['services'][:cinema]
   end
 
   it 'creates film' do

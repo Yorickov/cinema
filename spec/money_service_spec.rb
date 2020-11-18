@@ -1,28 +1,10 @@
-require 'cinema/services/cinema_service'
-require 'cinema/services/money_service'
-require 'cinema/services/user_service'
-require 'cinema/repositories/cinema_hall_repository'
-require 'cinema/repositories/film_repository'
-require 'cinema/repositories/film_screening_repository'
-require 'cinema/repositories/film_screening/ticket_repository'
-require 'cinema/repositories/user_repository'
+require 'cinema_manager'
 
 describe 'MoneyService' do
   before(:each) do
-    repo_types = {
-      cinema_hall_repository: CinemaHallRepository,
-      film_repository: FilmRepository,
-      film_screening_repository: FilmScreeningRepository,
-      user_repository: UserRepository,
-      ticket_repository: TicketRepository
-    }
-    repository_instances = repo_types.each_with_object({}) do |(key, value), acc|
-      acc[key] = value.new
-    end
-
-    @cinema_service = CinemaService.new(repository_instances)
-    @user_service = UserService.new(repository_instances)
-    @money_service = MoneyService.new(repository_instances)
+    @cinema_service = CinemaManager['services'][:cinema]
+    @user_service = CinemaManager['services'][:user]
+    @money_service = CinemaManager['services'][:money]
   end
 
   it 'create user' do
