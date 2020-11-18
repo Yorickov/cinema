@@ -14,6 +14,12 @@ class BaseRepository
     result
   end
 
+  def find_by(params)
+    key, value = params.to_a[0]
+    result = data.select { |entity| entity.send(key) == value }
+    result.any? ? result.first : nil
+  end
+
   def save(entity)
     data << entity
   end

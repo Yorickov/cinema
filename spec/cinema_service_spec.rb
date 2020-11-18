@@ -1,6 +1,6 @@
 require 'cinema_manager'
 
-describe 'CinemaService' do
+describe 'Cinema Service' do
   before(:each) do
     @service = CinemaManager['services'][:cinema]
   end
@@ -31,27 +31,5 @@ describe 'CinemaService' do
       rows: ['Wrong type']
     }
     expect(errors).to eq(expected)
-  end
-
-  describe 'creates film screening' do
-    let!(:film) { @service.create_film('the appartment', 120) }
-    let!(:cinema_hall) { @service.create_cinema_hall('hall 1', 30, 50) }
-
-    it 'successfully' do
-      time = Time.new
-      film_screening, _errors = @service.create_film_screening(film[0].id, cinema_hall[0].id, time)
-
-      expect(film_screening).to have_attributes(time: time)
-      expect(film_screening.film).to have_attributes(name: 'the appartment', duration: 120)
-      expect(film_screening.cinema_hall).to have_attributes(name: 'hall 1', rows: 30, cols: 50)
-    end
-
-    it 'with errors' do
-      _film_screening, errors = @service.create_film_screening(film[0].id, cinema_hall[0].id, '')
-      expected = {
-        time: ['You must input smth.']
-      }
-      expect(errors).to eq(expected)
-    end
   end
 end

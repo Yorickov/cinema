@@ -16,14 +16,4 @@ class CinemaService < ApplicationService
 
     [film, errors]
   end
-
-  def create_film_screening(film_id, cinema_hall_id, time)
-    film = repositories[:film].find(film_id)
-    hall = repositories[:cinema_hall].find(cinema_hall_id)
-    film_screening = entities[:film_screening].new(film, hall, time)
-    errors = film_screening.validate!
-    repositories[:film_screening].save(film_screening) unless errors
-
-    [film_screening, errors]
-  end
 end

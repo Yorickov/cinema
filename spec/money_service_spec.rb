@@ -5,42 +5,58 @@ describe 'MoneyService' do
     @cinema_service = CinemaManager['services'][:cinema]
     @user_service = CinemaManager['services'][:user]
     @money_service = CinemaManager['services'][:money]
+
+    @user, _err = @user_service.create_user('example@hoo.com')
+    @film, _err = @cinema_service.create_film('the appartment', 120)
+    @cinema_hall, _err = @cinema_service.create_cinema_hall('hall 1', 30, 50)
+    @price, _err = @money_service.create_price(@cinema_hall.id, 100)
   end
 
-  it 'create user' do
-    email = 'example@hoo.com'
-    user, _errors = @user_service.create_user(email)
-    expect(user).to have_attributes(email: email)
-  end
-
-  it 'create user (errors)' do
-    _user, errors = @user_service.create_user('')
+  it 'create Price' do
+    price, _err = @money_service.create_price(@cinema_hall.id, 200)
     expected = {
-      email: ['You must input smth.', 'Invalid format']
+      value: 200, cinema_hall: @cinema_hall
     }
-    expect(errors).to eq(expected)
+    expect(price).to have_attributes(expected)
   end
 
-  describe 'buy ticket' do
-    let(:film) { @cinema_service.create_film('the appartment', 120) }
-    let(:cinema_hall) { @cinema_service.create_cinema_hall('hall 1', 30, 50) }
-    let(:film_screening) { @cinema_service.create_film_screening(film[0].id, cinema_hall[0].id, Time.new) }
-    let(:user) { @user_service.create_user('example@hoo.com') }
-
+  describe 'creates film screening' do
     it 'successfully' do
-      place = 35
-      ticket, _errors = @money_service.buy_ticket(user[0].id, film_screening[0].id, place)
-      expect(ticket).to have_attributes(place: place)
-      expect(ticket.film_screening).to have_attributes(time: film_screening[0].time)
-      expect(ticket.user).to have_attributes(email: user[0].email)
+      time = Time.new
+      film_screening, _errors = @money_service.create_film_screening(
+        @film.id, @cinema_hall.id, time
+      )
+      expected = {
+        time: time, film: @film, cinema_hall: @cinema_hall
+      }
+      expect(film_screening)
+        .to have_attributes(expected)
     end
 
     it 'with errors' do
-      _ticket, errors = @money_service.buy_ticket(user[0].id, film_screening[0].id, '')
+      expect { @money_service.create_film_screening(@film.id, '', Time.new) }
+        .to raise_error('Entity not found')
+
+      expect { @money_service.create_film_screening(@film.id, @cinema_hall.id, '') }
+        .to raise_error('Wrong time format')
+    end
+  end
+
+  describe 'buy ticket' do
+    let!(:film_screening) { @money_service.create_film_screening(@film.id, @cinema_hall.id, Time.new)[0] }
+
+    it 'successfully' do
+      place = 35
+      ticket, _errors = @money_service.buy_ticket(@user.id, film_screening.id, place)
       expected = {
-        place: ['You must input smth.']
+        place: place, film_screening: film_screening, user: @user
       }
-      expect(errors).to eq(expected)
+      expect(ticket).to have_attributes(expected)
+    end
+
+    it 'with errors' do
+      expect { @money_service.buy_ticket(@film.id, '', 20) }
+        .to raise_error('Entity not found')
     end
   end
 end
