@@ -14,9 +14,13 @@ class BaseRepository
     result
   end
 
-  def find_by(params)
+  def find_all_by(params)
     key, value = params.to_a[0]
-    result = data.select { |entity| entity.send(key) == value }
+    data.select { |entity| entity.send(key) == value }
+  end
+
+  def find_by(params)
+    result = find_all_by(params)
     result.any? ? result.first : nil
   end
 

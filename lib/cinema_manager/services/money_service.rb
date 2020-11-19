@@ -21,7 +21,7 @@ class MoneyService < ApplicationService
     errors = ticket.validate!
     return [ticket, errors] if errors
 
-    capital_transaction = entities[:capital_transaction].new(ticket)
+    capital_transaction = entities[:capital_transaction].new(ticket, 'income')
     errors = capital_transaction.validate!
 
     unless errors
@@ -39,5 +39,20 @@ class MoneyService < ApplicationService
     repositories[:price].save(price) unless errors
 
     [price, errors]
+  end
+
+  def refund_ticket(ticket_id)
+    ticket = repositories[:film_screening_ticket].find(ticket_id)
+    return false if ticket.returned?
+
+    capital_transaction = entities[:capital_transaction].new(ticket, 'loss')
+    errors = capital_transaction.validate!
+    return [ticket, errors] if errors
+
+    repositories[:capital_transaction].save(capital_transaction)
+    ticket.refund
+    repositories[:film_screening_ticket].save(ticket)
+
+    true
   end
 end

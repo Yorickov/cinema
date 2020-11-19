@@ -5,6 +5,7 @@ describe 'MoneyService' do
     @cinema_service = CinemaManager['services'][:cinema]
     @user_service = CinemaManager['services'][:user]
     @money_service = CinemaManager['services'][:money]
+    @repositories = CinemaManager['repositories']
 
     @user, _err = @user_service.create_user('example@hoo.com')
     @film, _err = @cinema_service.create_film('the appartment', 120)
@@ -57,6 +58,33 @@ describe 'MoneyService' do
     it 'with errors' do
       expect { @money_service.buy_ticket(@film.id, '', 20) }
         .to raise_error('Entity not found')
+    end
+  end
+
+  describe 'refund ticket' do
+    let!(:film_screening) { @money_service.create_film_screening(@film.id, @cinema_hall.id, Time.new)[0] }
+
+    it 'go!' do
+      place = { row: 5, col: 3 };
+      ticket, _err = @money_service.buy_ticket(@user.id, film_screening.id, place)
+      is_refunded = @money_service.refund_ticket(ticket.id)
+
+      expect(is_refunded).to be(true);
+      expect(ticket.returned?).to be_truthy
+
+      capital_transactions = @repositories[:capital_transaction].find_all_by(ticket: ticket)
+      expect(capital_transactions.size).to be(2)
+
+      transaction_count = capital_transactions.reduce(0) { |acc, t| acc + t.cost }
+      expect(transaction_count).to be(0)
+
+      @money_service.refund_ticket(ticket.id)
+
+      capital_transactions = @repositories[:capital_transaction].find_all_by(ticket: ticket)
+      expect(capital_transactions.size).to be(2)
+
+      transaction_count = capital_transactions.reduce(0) { |acc, t| acc + t.cost }
+      expect(transaction_count).to be(0)
     end
   end
 end
